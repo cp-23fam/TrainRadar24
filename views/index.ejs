@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/header') %>  
+<body>
+    <h1>Connexions</h1>
+    from <%= data.from.name %>
+    to <%= data.to.name %>
+    <hr>
+    <% data.connections.forEach(connection => { %>
+        <div>
+            <p>
+                <%= connection.from.station.name %>
+            </p>
+            <p>
+                 <%= connection.to.station.name %>
+            </p>
+            <p>
+                 <%= to_duration(connection.duration,'m') %>
+            </p>
+        </div>
+    <% }) %>
+</body>
+</html>
