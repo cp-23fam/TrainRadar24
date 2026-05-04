@@ -1,21 +1,18 @@
 {
-  "name": "trainradar24",
+  "name": "my-app",
   "version": "1.0.0",
-  "description": "",
-  "homepage": "https://github.com/cp-23fam/TrainRadar24#readme",
-  "bugs": {
-    "url": "https://github.com/cp-23fam/TrainRadar24/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/cp-23fam/TrainRadar24.git"
-  },
-  "license": "ISC",
-  "author": "",
-  "type": "commonjs",
-  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": []
+    "start": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^7.1.11"
+  },
+  "dependencies": {
+    "ol": "latest"
+  }
 }
