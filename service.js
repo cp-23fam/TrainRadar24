@@ -17,14 +17,13 @@ async function get_route(from, to) {
         const result = await fetch(`http://transport.opendata.ch/v1/connections?from=${from}&to=${to}`);
         const data = await result.json();
         return data;
-        
+
     } catch (e) {
         error(e);
-    }
+    }  
 }
 
-function error(error) 
-{
+function error(error) {
     console.error(error);
 }
 
@@ -32,15 +31,15 @@ const app = express();
 
 app.set('view engine', 'ejs');
 
-app.get('/', async (req, res) => { 
+app.get('/', async (req, res) => {
     res.json("hello");
 });
 
 app.get('/station', async (req, res) => {
-    try{
+    try {
         const name = req.query.name;
 
-        const data = await get_station(name); 
+        const data = await get_station(name);
 
         res.json(data);
     }
@@ -50,13 +49,13 @@ app.get('/station', async (req, res) => {
 });
 
 app.get('/route', async (req, res) => {
-    try{
+    try {
         const from = req.query.from;
         const to = req.query.to;
 
-        const data = await get_route(from, to); 
+        const data = await get_route(from, to);
 
-        res.render('index', {title: 'TrainRadar', data: data, to_duration: time_converter.to_duration});
+        res.render('index', { title: 'TrainRadar', data: data, to_duration: time_converter.to_duration, to_date: time_converter.to_date });
     }
     catch (e) {
         error(e);

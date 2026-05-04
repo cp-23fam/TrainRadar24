@@ -1,0 +1,16 @@
+<div style="border: 1px; border-color: black; border-style: solid; padding: 10px;">
+    <%= connection.from.station.name %>
+        →
+        <%= connection.to.station.name %>
+            <div style="height: 20px;"></div>
+            <%= to_date(connection.departure).getHours %>
+                <p>
+                    <%= to_duration(connection.duration,'m') %>
+                </p>
+                <p>
+                    <%= connection.from.departureTimestamp %>
+                </p>
+                <p>
+                    <%= connection.to.arrivalTimestamp %>
+                </p>
+</div>

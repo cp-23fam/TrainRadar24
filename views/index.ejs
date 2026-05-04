@@ -1,23 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-<%- include('partials/header') %>  
-<body>
-    <h1>Connexions</h1>
-    from <%= data.from.name %>
-    to <%= data.to.name %>
-    <hr>
-    <% data.connections.forEach(connection => { %>
-        <div>
-            <p>
-                <%= connection.from.station.name %>
-            </p>
-            <p>
-                 <%= connection.to.station.name %>
-            </p>
-            <p>
-                 <%= to_duration(connection.duration,'m') %>
-            </p>
+<%- include('partials/header') %>
+
+    <body>
+        <h1>Connexions</h1>
+        <div style="width: 400px;">
+            <%= data.from.name %>
+                →
+                To <%= data.to.name %>
+                    <div style="height: 40px;"></div>
+                    <% for (let i=0; i < data.connections.length; i++) { %>
+                        <%- include('components/connection', {connection: data.connections[i], to_date: to_date}) %>
+                            <% if(i < data.connections.length - 1) { %>
+                                <div style="height: 20px;"></div>
+                                <% } %>
+                                    <% } %>
+
         </div>
-    <% }) %>
-</body>
+    </body>
+
 </html>
