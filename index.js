@@ -12,11 +12,18 @@ import { Style, Circle, Fill, Stroke } from "ol/style";
 
 setLevel("warn");
 
-const features = [];
+let features = [];
 
 const source = new VectorSource();
 const vectorLayer = new VectorLayer({
   source: source,
+  style: new Style({
+    image: new Circle({
+      radius: 8,
+      fill: new Fill({ color: "#e63946" }),
+      stroke: new Stroke({ color: "#fff", width: 2 }),
+    }),
+  }),
 });
 
 const map = new Map({
@@ -54,8 +61,12 @@ view.on("change:resolution", async () => {
       newPoint(station);
     }
 
-    source.refresh();
+    map.render();
     console.log(features);
+  } else if (zoom < 14) {
+    source.removeFeatures(features);
+    features = [];
+    map.render();
   }
 
   if (!timeout) {
@@ -63,24 +74,24 @@ view.on("change:resolution", async () => {
     setTimeout(() => {
       requested = null;
       timeout = false;
-    }, 3000);
+    }, 1000);
   }
 });
 
 function newPoint(point) {
   const feature = new Feature({
-    geometry: new Point(fromLonLat([point.x, point.y])),
+    geometry: new Point(fromLonLat([point.y, point.x])),
   });
 
   feature.setId(point.id);
 
-  feature.setStyle(
-    new Style({
-      fill: new Fill({
-        color: "#ffffff",
-      }),
-    }),
-  );
+  // feature.setStyle(
+  //   new Style({
+  //     fill: new Fill({
+  //       color: "#ffffff",
+  //     }),
+  //   }),
+  // );
 
   features.push(feature);
   source.addFeature(feature);
