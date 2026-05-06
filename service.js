@@ -20,7 +20,7 @@ async function get_route(from, to) {
 
     } catch (e) {
         error(e);
-    }  
+    }
 }
 
 function error(error) {

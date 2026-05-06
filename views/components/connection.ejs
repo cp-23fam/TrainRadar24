@@ -1,16 +1,11 @@
 <div style="border: 1px; border-color: black; border-style: solid; padding: 10px;">
-    <%= connection.from.station.name %>
-        →
-        <%= connection.to.station.name %>
-            <div style="height: 20px;"></div>
-            <%= to_date(connection.departure).getHours %>
-                <p>
+    <%= date=to_date(connection.from.departure).toLocaleTimeString('fr-FR', { hour: '2-digit' , minute: '2-digit' ,
+        hour12: false, }) %> - <%= connection.from.station.name %>
+            →
+            <%= date=to_date(connection.to.arrival).toLocaleTimeString('fr-FR', { hour: '2-digit' , minute: '2-digit' ,
+                hour12: false, }) %> - <%= connection.to.station.name %>
+                    <div style="height: 20px;"></div>
+
                     <%= to_duration(connection.duration,'m') %>
-                </p>
-                <p>
-                    <%= connection.from.departureTimestamp %>
-                </p>
-                <p>
-                    <%= connection.to.arrivalTimestamp %>
-                </p>
+
 </div>

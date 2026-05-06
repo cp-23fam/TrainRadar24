@@ -10,7 +10,7 @@
                 To <%= data.to.name %>
                     <div style="height: 40px;"></div>
                     <% for (let i=0; i < data.connections.length; i++) { %>
-                        <%- include('components/connection', {connection: data.connections[i], to_date: to_date}) %>
+                        <%- include('components/connection', {connection: data.connections[i]}) %>
                             <% if(i < data.connections.length - 1) { %>
                                 <div style="height: 20px;"></div>
                                 <% } %>
