@@ -85,7 +85,7 @@ app.get("/connections/:from/:to", async (req, res) => {
     const data = await response.json();
 
     const connections = (data.connections || []).map((connection) => ({
-      id: connection.from.station.id + connection.to.station.id,
+      id: connection.from.station.id * connection.to.station.id,
       from: connection.from.station.name,
       to: connection.to.station.name,
       departure: connection.from.departure,
@@ -93,6 +93,8 @@ app.get("/connections/:from/:to", async (req, res) => {
       duration: connection.duration,
       platform: connection.from.platform,
     }));
+
+    console.log("Fetched connections:", connections);
 
     res.json({ connections });
   } catch (error) {
