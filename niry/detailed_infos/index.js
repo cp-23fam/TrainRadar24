@@ -85,6 +85,7 @@ app.get("/connections/:from/:to", async (req, res) => {
     const data = await response.json();
 
     const connections = (data.connections || []).map((connection) => ({
+      id: connection.from.station.id + connection.to.station.id,
       from: connection.from.station.name,
       to: connection.to.station.name,
       departure: connection.from.departure,
