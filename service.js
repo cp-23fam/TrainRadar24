@@ -32,7 +32,7 @@ const app = express();
 app.set('view engine', 'ejs');
 
 app.get('/', async (req, res) => {
-    res.json("hello");
+    res.render('index', { title: 'TrainRadar', to_duration: time_converter.to_duration, to_date: time_converter.to_date });
 });
 
 app.get('/station', async (req, res) => {
@@ -52,10 +52,12 @@ app.get('/route', async (req, res) => {
     try {
         const from = req.query.from;
         const to = req.query.to;
+        
+        console.log(`from: ${from} to: ${to}`);
 
         const data = await get_route(from, to);
 
-        res.render('index', { title: 'TrainRadar', data: data, to_duration: time_converter.to_duration, to_date: time_converter.to_date });
+        res.json(data);
     }
     catch (e) {
         error(e);

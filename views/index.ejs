@@ -3,20 +3,76 @@
 <%- include('partials/header') %>
 
     <body>
-        <h1>Connexions</h1>
-        <div style="width: 400px;">
-            <%= data.from.name %>
+        <div>
+            
+            <h1>Connexions</h1>
+            <div style="width: 400px;">
+                <div style="height: 20px"></div>
+                
+                <form action="route" method="get" name="route" id="routeForm">
+                    <!-- <label for="from">from</label> -->
+                    <input type="text" name="from" id="from" placeholder="from">
+                    
+                    <div style="height: 20px"></div>
+                    
+                    <!-- <label for="to">to</label> -->
+                    <input type="text" name="to" id="to" placeholder="to">
+                </form>
+                
+                <div style="height: 20px"></div>
+                
+                
+                <div id="fromValue"></div>
                 →
-                To <%= data.to.name %>
-                    <div style="height: 40px;"></div>
-                    <% for (let i=0; i < data.connections.length; i++) { %>
-                        <%- include('components/connection', {connection: data.connections[i]}) %>
-                            <% if(i < data.connections.length - 1) { %>
-                                <div style="height: 20px;"></div>
-                                <% } %>
-                                    <% } %>
+                <div id="toValue"></div>
+                <div style="height: 40px;"></div>
+                <!-- <div id="connectionList"></div> -->
+                <ul id="connectionList"></ul>
+            </div>
 
-        </div>
+         </div>
     </body>
-
+                
 </html>
+
+<script>
+    fromWidget = document.getElementById('fromValue');
+    toWidget = document.getElementById('toValue');
+
+    connectionList = document.getElementById('connectionList');
+
+    document.getElementById('routeForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        fromValue = document.getElementById('from').value;
+        toValue = document.getElementById('to').value;
+        
+       const data = await fetch(`/route?from=${fromValue}&to=${toValue}`);
+
+        fromWidget.value = fromValue;
+        toWidget.value = toValue;
+
+        // connectionList.value = 
+
+           connectionList.innerHTML = '';
+
+        data.connections.forEach(connection => {
+
+            const li = document.createElement('li');
+
+            li.innerHTML = `
+                <strong>${connection.from.station.name}</strong>
+                →
+                <strong>${connection.to.station.name}</strong>
+                <br>
+                Departure: ${connection.from.departure}
+                <br>
+                Arrival: ${connection.to.arrival}
+                <br><br>
+            `;
+
+            connectionList.appendChild(li);
+        });
+    });
+
+</script>
