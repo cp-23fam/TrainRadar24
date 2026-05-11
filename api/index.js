@@ -78,8 +78,10 @@ app.get("/connections/:from", async (req, res) => {
 });
 
 app.get("/connections/:from/:to", async (req, res) => {
+  const hour = new Date().getHours() - 1;
+  const minutes = new Date().getMinutes();
   const { from, to } = req.params;
-  const apiUrl = `https://transport.opendata.ch/v1/connections?from=${from}&to=${to}`;
+  const apiUrl = `https://transport.opendata.ch/v1/connections?from=${from}&to=${to}&time=${hour}:${minutes}`;
   try {
     const response = await fetch(apiUrl);
     const data = await response.json();
@@ -93,8 +95,6 @@ app.get("/connections/:from/:to", async (req, res) => {
       duration: connection.duration,
       platform: connection.from.platform,
     }));
-
-    console.log("Fetched connections:", connections);
 
     res.json({ connections });
   } catch (error) {

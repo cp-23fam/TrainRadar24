@@ -12,15 +12,28 @@ import { Style, Circle, Fill, Stroke } from "ol/style";
 
 setLevel("warn");
 
-let features = [];
+let stations = [];
+let trains = [];
 
-const source = new VectorSource();
-const vectorLayer = new VectorLayer({
-  source: source,
+const stationsSource = new VectorSource();
+const stationsLayers = new VectorLayer({
+  source: stationsSource,
   style: new Style({
     image: new Circle({
       radius: 8,
       fill: new Fill({ color: "#e63946" }),
+      stroke: new Stroke({ color: "#fff", width: 2 }),
+    }),
+  }),
+});
+
+const trainsSource = new VectorSource();
+const trainLayers = new VectorLayer({
+  source: stationsSource,
+  style: new Style({
+    image: new Circle({
+      radius: 8,
+      fill: new Fill({ color: "#32da23ff" }),
       stroke: new Stroke({ color: "#fff", width: 2 }),
     }),
   }),
@@ -32,7 +45,8 @@ const map = new Map({
     new TileLayer({
       source: new OSM(),
     }),
-    vectorLayer,
+    stationsLayers,
+    trainLayers,
   ],
   view: new View({
     center: [802614, 5973925],
@@ -49,7 +63,7 @@ view.on("change:resolution", async () => {
   const host = "http://localhost:3000";
   const zoom = view.getZoom();
 
-  if (zoom >= 14 && !requested) {
+  if (zoom >= 13 && !requested) {
     requested = true;
     const center = view.getCenter();
     const points = toLonLat(center);
@@ -57,15 +71,30 @@ view.on("change:resolution", async () => {
     const res = await fetch(`${host}/station/${points[0]}/${points[1]}`);
     const data = await res.json();
 
+    const stations = stationsSource.getFeatures();
+
+    for (const departure of stations) {
+      for (const arrival of stations) {
+        const departureId = departure.getId();
+        const arrivalId = arrival.getId();
+        const connections = await fetch(
+          `${host}/connections/${departureId}/${arrivalId}`,
+        );
+        const connectionData = await connections.json();
+        newTrain(connectionData, departure, arrival);
+      }
+    }
+
     for (const station of data.stations) {
       newPoint(station);
     }
 
     map.render();
-    console.log(features);
-  } else if (zoom < 14) {
-    source.removeFeatures(features);
-    features = [];
+  } else if (zoom < 13) {
+    stationsSource.removeFeatures(stations);
+    trainsSource.removeFeatures(trains);
+    stations = [];
+    trains = [];
     map.render();
   }
 
@@ -81,18 +110,53 @@ view.on("change:resolution", async () => {
 function newPoint(point) {
   const feature = new Feature({
     geometry: new Point(fromLonLat([point.y, point.x])),
+    name: point.name,
   });
 
   feature.setId(point.id);
 
-  // feature.setStyle(
-  //   new Style({
-  //     fill: new Fill({
-  //       color: "#ffffff",
-  //     }),
-  //   }),
-  // );
-
-  features.push(feature);
-  source.addFeature(feature);
+  stations.push(feature);
+  stationsSource.addFeature(feature);
 }
+
+function newTrain(train, departure, arrival) {
+  const dCords = toLonLat(departure.getGeometry().getCoordinates());
+  const aCords = toLonLat(arrival.getGeometry().getCoordinates());
+
+  const feature = new Feature({
+    geometry: new Point(fromLonLat([train.y, train.x])),
+  });
+
+  if (train.connections.length < 1) {
+    return;
+  }
+
+  feature.setProperties({
+    schedule: {
+      departure: train.connections[0].departure,
+      arrival: train.connections[0].arrival,
+      from: dCords,
+      to: aCords,
+    },
+  });
+  feature.setId(train.id);
+
+  trains.push(feature);
+  trainsSource.addFeature(feature);
+}
+
+setInterval(() => {
+  const now = new Date();
+
+  for (const train of trainsSource.getFeatures()) {
+    const props = train.getProperties().schedule;
+    // console.log(props);
+
+    const departure = Date.parse(props.departure);
+    const arrival = Date.parse(props.arrival);
+
+    const t = (now - departure) / (arrival - departure);
+
+    console.log(t);
+  }
+}, 2000);
