@@ -73,22 +73,22 @@ view.on("change:resolution", async () => {
 
     const stations = stationsSource.getFeatures();
 
-    for (const departure of stations) {
-      for (const arrival of stations) {
-        const departureId = departure.getId();
-        const arrivalId = arrival.getId();
+    // for (const departure of stations) {
+    //   for (const arrival of stations) {
+    //     const departureId = departure.getId();
+    //     const arrivalId = arrival.getId();
 
-        const connections = await fetch(
-          `${host}/connections/${departureId}/${arrivalId}`,
-        );
+    //     const connections = await fetch(
+    //       `${host}/connections/${departureId}/${arrivalId}`,
+    //     );
 
-        const connectionData = await connections.json();
+    //     const connectionData = await connections.json();
 
-        console.log(connectionData);
+    //     console.log(connectionData);
 
-        newTrain(connectionData, departure, arrival);
-      }
-    }
+    //     newTrain(connectionData, departure, arrival);
+    //   }
+    // }
 
     for (const station of data.stations) {
       newPoint(station);
