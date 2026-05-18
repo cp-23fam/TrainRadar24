@@ -4,38 +4,43 @@
 
     <body>
         <div>
-            
+
             <h1>Connexions</h1>
             <div style="width: 400px;">
                 <div style="height: 20px"></div>
-                
+
                 <form action="route" method="get" name="route" id="routeForm">
                     <!-- <label for="from">from</label> -->
                     <input type="text" name="from" id="from" placeholder="from">
-                    
+
                     <div style="height: 20px"></div>
-                    
+
                     <!-- <label for="to">to</label> -->
                     <input type="text" name="to" id="to" placeholder="to">
+
+                    <div style="height: 20px"></div>
+
+                    <input type="submit" value="rechercher">
                 </form>
-                
+
                 <div style="height: 20px"></div>
-                
-                
+
+
                 <div id="fromValue"></div>
                 →
                 <div id="toValue"></div>
                 <div style="height: 40px;"></div>
-                <!-- <div id="connectionList"></div> -->
-                <ul id="connectionList"></ul>
+                <div id="connectionList"></div>
+                <!-- <ul id="connectionList"></ul> -->
             </div>
 
-         </div>
+        </div>
     </body>
-                
+
 </html>
 
 <script>
+
     fromWidget = document.getElementById('fromValue');
     toWidget = document.getElementById('toValue');
 
@@ -43,36 +48,59 @@
 
     document.getElementById('routeForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+        console.log(`hey`);
+
         fromValue = document.getElementById('from').value;
         toValue = document.getElementById('to').value;
-        
-       const data = await fetch(`/route?from=${fromValue}&to=${toValue}`);
+
+        const res = await fetch(`/route?from=${fromValue}&to=${toValue}`);
+        const data = await res.json();
 
         fromWidget.value = fromValue;
         toWidget.value = toValue;
 
-        // connectionList.value = 
+        connectionList.innerHTML = '';
 
-           connectionList.innerHTML = '';
+        // for (let i = 0; i < data.connections; i++) {
+        //     connection = data.connections[i];
 
-        data.connections.forEach(connection => {
+        //     var departureTime = new Date(connection.from.departure).toLocaleTimeString('fr-FR', {
+        //         hour: '2-digit', minute: '2-digit',
+        //         hour12: false,
+        //     });
 
-            const li = document.createElement('li');
+        //     var arrivalTime = new Date(connection.to.arrival).toLocaleTimeString('fr-FR', {
+        //         hour: '2-digit', minute: '2-digit',
+        //         hour12: false,
+        //     })
 
-            li.innerHTML = `
-                <strong>${connection.from.station.name}</strong>
-                →
-                <strong>${connection.to.station.name}</strong>
-                <br>
-                Departure: ${connection.from.departure}
-                <br>
-                Arrival: ${connection.to.arrival}
-                <br><br>
-            `;
+        //     connectionList.innerHTML += <div style="border: 1px; border-color: black; border-style: solid; padding: 10px;">
+        //         departureTime - connection.from.station.name
+        //         →
+        //         arrivalTime - connection.to.station.name
+        //     </div>;
 
-            connectionList.appendChild(li);
-        });
+        //     if (i < data.connections - 1) {
+        //         connectionList.innerHTML += <div style="height: 20px;"></div>;
+        //     }
+        // }
+        // data.connections.forEach(connection => {
+
+        //     const li = document.createElement('li');
+
+        //     li.innerHTML = `
+        //         <strong>${connection.from.station.name}</strong>
+        //         →
+        //         <strong>${connection.to.station.name}</strong>
+        //         <br>
+        //         Departure: ${connection.from.departure}
+        //         <br>
+        //         Arrival: ${connection.to.arrival}
+        //         <br><br>
+        //     `;
+
+        //     connectionList.appendChild(li);
+        // });
     });
 
 </script>

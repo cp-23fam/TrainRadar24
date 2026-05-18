@@ -1,6 +1,7 @@
 const express = require("express");
 
 const time_converter = require("./utils/time_converter");
+const test_datas = require("./utils/test_datas");
 
 async function get_station(name) {
     try {
@@ -14,10 +15,10 @@ async function get_station(name) {
 
 async function get_route(from, to) {
     try {
-        const result = await fetch(`http://transport.opendata.ch/v1/connections?from=${from}&to=${to}`);
-        const data = await result.json();
-        return data;
-
+        // const result = await fetch(`http://transport.opendata.ch/v1/connections?from=${from}&to=${to}`);
+        // const data = await result.json();
+        // return data;
+        return test_datas.test_connections;
     } catch (e) {
         error(e);
     }
@@ -52,7 +53,7 @@ app.get('/route', async (req, res) => {
     try {
         const from = req.query.from;
         const to = req.query.to;
-        
+
         console.log(`from: ${from} to: ${to}`);
 
         const data = await get_route(from, to);
