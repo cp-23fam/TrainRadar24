@@ -29,7 +29,7 @@ const stationsLayers = new VectorLayer({
 
 const trainsSource = new VectorSource();
 const trainLayers = new VectorLayer({
-  source: stationsSource,
+  source: trainsSource,
   style: new Style({
     image: new Circle({
       radius: 8,
@@ -77,10 +77,15 @@ view.on("change:resolution", async () => {
       for (const arrival of stations) {
         const departureId = departure.getId();
         const arrivalId = arrival.getId();
+
         const connections = await fetch(
           `${host}/connections/${departureId}/${arrivalId}`,
         );
+
         const connectionData = await connections.json();
+
+        console.log(connectionData);
+
         newTrain(connectionData, departure, arrival);
       }
     }
@@ -113,6 +118,11 @@ function newPoint(point) {
     name: point.name,
   });
 
+  const existing = stationsSource.getFeatureById(point.id);
+  if (existing !== null) {
+    return;
+  }
+
   feature.setId(point.id);
 
   stations.push(feature);
@@ -123,13 +133,13 @@ function newTrain(train, departure, arrival) {
   const dCords = toLonLat(departure.getGeometry().getCoordinates());
   const aCords = toLonLat(arrival.getGeometry().getCoordinates());
 
-  const feature = new Feature({
-    geometry: new Point(fromLonLat([train.y, train.x])),
-  });
-
   if (train.connections.length < 1) {
     return;
   }
+
+  const feature = new Feature({
+    geometry: new Point(fromLonLat([train.y, train.x])),
+  });
 
   feature.setProperties({
     schedule: {
@@ -150,7 +160,6 @@ setInterval(() => {
 
   for (const train of trainsSource.getFeatures()) {
     const props = train.getProperties().schedule;
-    // console.log(props);
 
     const departure = Date.parse(props.departure);
     const arrival = Date.parse(props.arrival);
@@ -158,5 +167,14 @@ setInterval(() => {
     const t = (now - departure) / (arrival - departure);
 
     console.log(t);
+
+    train.setGeometry(
+      new Point(
+        fromLonLat([
+          props.from[0] + t * (props.to[0] - props.from[0]),
+          props.from[1] + t * (props.to[1] - props.from[1]),
+        ]),
+      ),
+    );
   }
 }, 2000);
