@@ -10,3 +10,21 @@ html, body {
   bottom: 0;
   width: 100%;
 }
+
+.overlay {
+  background-color: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: Arial, sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.overlay strong {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 4px;
+}

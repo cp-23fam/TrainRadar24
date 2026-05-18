@@ -1,5 +1,5 @@
 import "./style.css";
-import { Map, View } from "ol";
+import { Map, View, Overlay } from "ol";
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 import { setLevel } from "ol/console";
@@ -8,12 +8,16 @@ import TileLayer from "ol/layer/Tile";
 import OSM from "ol/source/OSM";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
-import { Style, Circle, Fill, Stroke } from "ol/style";
+import { Style, Circle, Fill, Stroke, Icon } from "ol/style";
+import trainIcon from "./assets/train.png";
 
 setLevel("warn");
 
 let stations = [];
 let trains = [];
+
+const soncebozCoords = [7.168766, 47.19515]; // [lon, lat]
+const corgémontCoords = [7.144666, 47.193399];
 
 const stationsSource = new VectorSource();
 const stationsLayers = new VectorLayer({
@@ -31,13 +35,18 @@ const trainsSource = new VectorSource();
 const trainLayers = new VectorLayer({
   source: trainsSource,
   style: new Style({
-    image: new Circle({
-      radius: 8,
-      fill: new Fill({ color: "#32da23ff" }),
-      stroke: new Stroke({ color: "#fff", width: 2 }),
+    image: new Icon({
+      src: trainIcon,
+      scale: 0.08,
+      anchor: [0.5, 0.5],
     }),
   }),
 });
+
+const centerCoords = fromLonLat([
+  (soncebozCoords[0] + corgémontCoords[0]) / 2,
+  (soncebozCoords[1] + corgémontCoords[1]) / 2,
+]);
 
 const map = new Map({
   target: "map",
@@ -49,8 +58,8 @@ const map = new Map({
     trainLayers,
   ],
   view: new View({
-    center: [802614, 5973925],
-    zoom: 10,
+    center: centerCoords,
+    zoom: 14,
   }),
 });
 
@@ -58,6 +67,77 @@ const view = map.getView();
 
 let requested = null;
 let timeout = false;
+
+// Overlay pour les infos au survol
+const overlayElement = document.createElement("div");
+overlayElement.className = "overlay";
+overlayElement.id = "overlay";
+document.body.appendChild(overlayElement);
+
+const overlay = new Overlay({
+  element: overlayElement,
+  autoPan: true,
+  autoPanAnimation: { duration: 250 },
+});
+map.addOverlay(overlay);
+
+// Détecteur de survol
+map.on("pointermove", (evt) => {
+  if (evt.dragging) {
+    overlay.setPosition(undefined);
+    return;
+  }
+
+  const pixel = map.getEventPixel(evt.originalEvent);
+  let hasFeature = false;
+
+  map.forEachFeatureAtPixel(pixel, (feature) => {
+    const props = feature.getProperties();
+    let content = "";
+
+    if (props.name) {
+      // C'est une gare
+      content = `<strong>${props.name}</strong>`;
+    } else if (props.schedule) {
+      // C'est un train
+      const schedule = props.schedule;
+      const from = schedule.from;
+      const to = schedule.to;
+      const depTime = new Date(schedule.departure).toLocaleTimeString(
+        "fr-FR",
+        { hour: "2-digit", minute: "2-digit" }
+      );
+      const arrTime = new Date(schedule.arrival).toLocaleTimeString(
+        "fr-FR",
+        { hour: "2-digit", minute: "2-digit" }
+      );
+      content = `<strong>Train</strong><br/>${depTime} → ${arrTime}`;
+    }
+
+    if (content) {
+      overlayElement.innerHTML = content;
+      overlay.setPosition(evt.coordinate);
+      hasFeature = true;
+    }
+  });
+
+  if (!hasFeature) {
+    overlay.setPosition(undefined);
+  }
+});
+
+// Train en dur: Sonceboz -> Corgémont
+const now = new Date();
+const departure = new Date(now.getTime());
+const arrival = new Date(now.getTime() + 30 * 60000); // 30 minutes plus tard
+
+addHardcodedTrain(
+  soncebozCoords,
+  corgémontCoords,
+  "hardcoded-train-sonceboz-corgémont",
+  departure.toISOString(),
+  arrival.toISOString(),
+);
 
 view.on("change:resolution", async () => {
   const host = "http://localhost:3000";
@@ -150,6 +230,25 @@ function newTrain(train, departure, arrival) {
     },
   });
   feature.setId(train.id);
+
+  trains.push(feature);
+  trainsSource.addFeature(feature);
+}
+
+function addHardcodedTrain(fromCoords, toCoords, trainId, departureTime, arrivalTime) {
+  const feature = new Feature({
+    geometry: new Point(fromLonLat(fromCoords)),
+  });
+
+  feature.setProperties({
+    schedule: {
+      departure: departureTime,
+      arrival: arrivalTime,
+      from: fromCoords,
+      to: toCoords,
+    },
+  });
+  feature.setId(trainId);
 
   trains.push(feature);
   trainsSource.addFeature(feature);
