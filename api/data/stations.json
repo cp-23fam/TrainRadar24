@@ -1,7 +1,9 @@
-[
-  {
-    "id": "",
-    "name": "",
-    "connections": [{ "departure": "", "arrival": "" }]
-  }
-]
+{
+  "existing": [
+    {
+      "id": "",
+      "connections": [{ "departure": "", "arrival": "" }]
+    }
+  ],
+  "forbidden": []
+}
